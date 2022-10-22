@@ -2,6 +2,7 @@ import { Button, Grid, MenuItem, Select } from "@mui/material";
 import { Loader } from "google-maps";
 import { useState, useEffect, FormEvent, useCallback, useRef } from "react";
 import { getCurrentPosition } from "../util/geolocation";
+import { makeCarIcon, makeMarkerIcon } from "../util/map";
 import { Route } from "../util/models";
 
 type Props = {};
@@ -41,9 +42,23 @@ export const Mapping = (props: Props) => {
     const startRoute = useCallback(
         (event: FormEvent) => {
             event.preventDefault();
-            console.log(routeIdSelected);
+            const route = routes.find((r) => r._id === routeIdSelected);
+            new google.maps.Marker({
+                position: route?.startPosition,
+                map: mapRef.current,
+                icon: {
+                    path: makeCarIcon(),
+                },
+            });
+            new google.maps.Marker({
+                position: route?.endPosition,
+                map: mapRef.current,
+                icon: {
+                    path: makeMarkerIcon(),
+                },
+            });
         },
-        [routeIdSelected]
+        [routeIdSelected, routes]
     );
 
     return (
