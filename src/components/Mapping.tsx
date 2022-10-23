@@ -12,6 +12,8 @@ import { getCurrentPosition } from "../util/geolocation";
 import { makeCarIcon, makeMarkerIcon, Map } from "../util/map";
 import { Route } from "../util/models";
 import { sample, shuffle } from "lodash";
+import { RouteExistsError } from "./errors/route-exists.error";
+import { useSnackbar } from "notistack";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const googleMapsLoader = new Loader(process.env.REACT_APP_GOOGLE_API_KEY);
@@ -33,6 +35,7 @@ export const Mapping: FunctionComponent = () => {
     const [routes, setRoutes] = useState<Route[]>([]);
     const [routeIdSelected, setRouteIdSelected] = useState<string>("");
     const mapRef = useRef<Map>();
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         async function getRoutes() {
@@ -63,19 +66,32 @@ export const Mapping: FunctionComponent = () => {
             event.preventDefault();
             const route = routes.find((r) => r._id === routeIdSelected);
             const color = sample(shuffle(colors)) as string;
+            try {
+                mapRef.current?.addRoute(routeIdSelected, {
+                    currentMarketOptions: {
+                        position: route?.startPosition,
+                        icon: makeCarIcon(color),
+                    },
+                    endMarkerOptions: {
+                        position: route?.endPosition,
+                        icon: makeMarkerIcon(color),
+                    },
+                });
+            } catch (error) {
+                if (error instanceof RouteExistsError) {
+                    enqueueSnackbar(
+                        `${route?.title} já adicionado, espere finalizar.`,
+                        {
+                            variant: "error",
+                        }
+                    );
+                    return;
+                }
 
-            mapRef.current?.addRoute(routeIdSelected, {
-                currentMarketOptions: {
-                    position: route?.startPosition,
-                    icon: makeCarIcon(color),
-                },
-                endMarkerOptions: {
-                    position: route?.endPosition,
-                    icon: makeMarkerIcon(color),
-                },
-            });
+                throw error;
+            }
         },
-        [routeIdSelected, routes]
+        [routeIdSelected, routes, enqueueSnackbar]
     );
 
     return (
