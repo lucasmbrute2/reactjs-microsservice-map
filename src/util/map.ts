@@ -33,6 +33,19 @@ export class Map {
             currentMarketOptions: { ...currentMarketOptions, map:  this.map},
             endMarkerOptions: {...endMarkerOptions, map: this.map }
         })
+
+        this.fitBounds();
+    }
+
+    private fitBounds() {
+        const bounds = new google.maps.LatLngBounds();
+        Object.keys(this.routes).forEach((id: string) => {
+            const route = this.routes[id];
+            bounds.extend(route.currentMarket.getPosition() as any)
+            bounds.extend(route.endMarket.getPosition() as any)
+        })
+
+        this.map.fitBounds(bounds)
     }
 }
 
