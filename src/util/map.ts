@@ -1,6 +1,7 @@
 export class Route {
     public currentMarket: google.maps.Marker;
     public endMarket: google.maps.Marker;
+    private directionsRender: google.maps.DirectionsRenderer;
 
     constructor(options: {
         currentMarketOptions: google.maps.ReadonlyMarkerOptions;
@@ -9,6 +10,39 @@ export class Route {
         const{currentMarketOptions, endMarkerOptions} = options;
         this.currentMarket = new google.maps.Marker(currentMarketOptions);
         this.endMarket = new google.maps.Marker(endMarkerOptions);
+
+        const strokeColor = (this.currentMarket.getIcon() as google.maps.ReadonlySymbol).strokeColor
+        this.directionsRender = new google.maps.DirectionsRenderer({
+            suppressMarkers: true,
+            polylineOptions: {
+                strokeColor,
+                strokeOpacity: 0.5,
+                strokeWeight: 5
+            }
+        })
+        this.directionsRender.setMap(
+            this.currentMarket.getMap() as google.maps.Map
+        )
+
+        this.calculateRoute();
+    }
+
+    private calculateRoute() {
+        const currentPosition = this.currentMarket.getPosition() as google.maps.LatLng;
+        const endPosition = this.endMarket.getPosition() as google.maps.LatLng;
+
+        new google.maps.DirectionsService().route({
+            origin: currentPosition,
+            destination: endPosition,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, (result, status)=> {
+            if (status === "OK") {
+                this.directionsRender.setDirections(result);
+                return;
+            }
+
+            throw new Error(status);
+        })
     }
 }
 
