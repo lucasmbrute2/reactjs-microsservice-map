@@ -4,7 +4,7 @@ import DriveEtaIcon from "@mui/icons-material/DriveEta";
 
 export const Navbar: FunctionComponent = () => {
     return (
-        <AppBar>
+        <AppBar position="static">
             <Toolbar>
                 <IconButton edge="start" color="inherit" aria-label="menu">
                     <DriveEtaIcon />
