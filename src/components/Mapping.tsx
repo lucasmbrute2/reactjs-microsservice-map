@@ -14,6 +14,7 @@ import { Route } from "../util/models";
 import { sample, shuffle } from "lodash";
 import { RouteExistsError } from "./errors/route-exists.error";
 import { useSnackbar } from "notistack";
+import { Navbar } from "./Navbar";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const googleMapsLoader = new Loader(process.env.REACT_APP_GOOGLE_API_KEY);
@@ -115,9 +116,11 @@ export const Mapping: FunctionComponent = () => {
     return (
         <Grid container sx={useStyles.root}>
             <Grid item xs={12} sm={3}>
+                <Navbar />
                 <form onSubmit={startRoute} style={useStyles.form}>
                     <Select
                         fullWidth
+                        displayEmpty
                         value={routeIdSelected}
                         onChange={(e) =>
                             setRouteIdSelected(e.target.value + "")
