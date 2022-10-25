@@ -31,6 +31,24 @@ const colors = [
     "#827717",
 ];
 
+const useStyles = {
+    root: {
+        width: "100%",
+        height: "100%",
+    },
+    form: {
+        margin: "16px",
+    },
+    btnSubmitWrapper: {
+        textAlign: "center",
+        marginTop: "8px",
+    },
+    map: {
+        width: "100%",
+        height: "100%",
+    },
+};
+
 export const Mapping: FunctionComponent = () => {
     const [routes, setRoutes] = useState<Route[]>([]);
     const [routeIdSelected, setRouteIdSelected] = useState<string>("");
@@ -95,15 +113,9 @@ export const Mapping: FunctionComponent = () => {
     );
 
     return (
-        <Grid
-            container
-            style={{
-                width: "100%",
-                height: "100%",
-            }}
-        >
+        <Grid container sx={useStyles.root}>
             <Grid item xs={12} sm={3}>
-                <form onSubmit={startRoute}>
+                <form onSubmit={startRoute} style={useStyles.form}>
                     <Select
                         fullWidth
                         value={routeIdSelected}
@@ -120,19 +132,24 @@ export const Mapping: FunctionComponent = () => {
                             </MenuItem>
                         ))}
                     </Select>
-                    <Button type="submit" color="primary" variant="contained">
-                        Iniciar uma corrida
-                    </Button>
+                    <div
+                        style={{
+                            textAlign: "center",
+                            marginTop: "8px",
+                        }}
+                    >
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="contained"
+                        >
+                            Iniciar uma corrida
+                        </Button>
+                    </div>
                 </form>
             </Grid>
             <Grid item xs={12} sm={9}>
-                <div
-                    id="map"
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                    }}
-                ></div>
+                <div id="map" style={useStyles.map}></div>
             </Grid>
         </Grid>
     );
