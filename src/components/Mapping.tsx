@@ -15,8 +15,9 @@ import { sample, shuffle } from "lodash";
 import { RouteExistsError } from "./errors/route-exists.error";
 import { useSnackbar } from "notistack";
 import { Navbar } from "./Navbar";
+import { io } from "socket.io-client";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL as string;
 const googleMapsLoader = new Loader(process.env.REACT_APP_GOOGLE_API_KEY);
 
 const colors = [
@@ -55,10 +56,19 @@ export const Mapping: FunctionComponent = () => {
     const [routeIdSelected, setRouteIdSelected] = useState<string>("");
     const mapRef = useRef<Map>();
     const { enqueueSnackbar } = useSnackbar();
+    const socketIORef = useRef<any>();
+
+    useEffect(() => {
+        socketIORef.current = io(API_URL);
+
+        socketIORef.current.on("connect", () => {
+            console.log("connected");
+        });
+    }, []);
 
     useEffect(() => {
         async function getRoutes() {
-            const data = await fetch(API_URL as string);
+            const data = await fetch(`${API_URL}/routes` as string);
             const response = await data.json();
             setRoutes(response);
         }
@@ -95,6 +105,10 @@ export const Mapping: FunctionComponent = () => {
                         position: route?.endPosition,
                         icon: makeMarkerIcon(color),
                     },
+                });
+
+                socketIORef.current?.emit("new-direction", {
+                    routeId: routeIdSelected,
                 });
             } catch (error) {
                 if (error instanceof RouteExistsError) {
